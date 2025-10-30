@@ -219,8 +219,8 @@ function generate_outbound(node) {
 
 	const outbound = {
 		type: node.type,
-		tag: 'cfg-' + node['.name'] + '-out',
-		routing_mark: strToInt(self_mark),
+		tag: node.label,
+		routing_mark: (node.type !== 'urltest' && node.type !== 'selector') ? strToInt(self_mark) : null,
 
 		server: node.address,
 		server_port: strToInt(node.port),
@@ -230,6 +230,15 @@ function generate_outbound(node) {
 		username: (node.type !== 'ssh') ? node.username : null,
 		user: (node.type === 'ssh') ? node.username : null,
 		password: node.password,
+
+		/* urltest */
+		outbounds: node.outbounds,
+		url: node.url,
+		interval: node.interval,
+		tolerance: strToInt(node.tolerance),
+		idle_timeout: node.idle_timeout,
+		default: node.default,
+		interrupt_exist_connections: (node.interrupt_exist_connections === '1') || null,
 
 		/* Direct */
 		override_address: node.override_address,
@@ -353,7 +362,7 @@ function get_outbound(cfg) {
 
 		let outbounds = [];
 		for (let i in cfg)
-			push(outbounds, get_outbound(i));
+			push(outbounds, i);
 		return outbounds;
 	} else {
 		switch (cfg) {
@@ -361,13 +370,13 @@ function get_outbound(cfg) {
 		case 'direct-out':
 			return cfg;
 		default:
-			const node = uci.get(uciconfig, cfg, 'node');
+			const node = uci.get(uciconfig, cfg, 'label');
 			if (isEmpty(node))
 				die(sprintf("%s's node is missing, please check your configuration.", cfg));
 			else if (node === 'urltest')
 				return 'cfg-' + cfg + '-out';
 			else
-				return 'cfg-' + node + '-out';
+				return node;
 		}
 	}
 }
