@@ -6,10 +6,10 @@ on:
       - 'master'
       - 'dev'
     paths:
-      - '../../luci-app-homeproxy/htdocs/**'
-      - '../../luci-app-homeproxy/po/**'
-      - '../../luci-app-homeproxy/root/**'
-      - '../../luci-app-homeproxy/Makefile'
+      - '../../luci-app-homeproxy-clashapi/htdocs/**'
+      - '../../luci-app-homeproxy-clashapi/po/**'
+      - '../../luci-app-homeproxy-clashapi/root/**'
+      - '../../luci-app-homeproxy-clashapi/Makefile'
       - '.github/**'
       - '!.github/ISSUE_TEMPLATE/**'
 
@@ -22,9 +22,9 @@ on:
       - synchronize
       - reopened
     paths:
-      - '../../luci-app-homeproxy/htdocs/**'
-      - '../../luci-app-homeproxy/root/**'
-      - '../../luci-app-homeproxy/Makefile'
+      - '../../luci-app-homeproxy-clashapi/htdocs/**'
+      - '../../luci-app-homeproxy-clashapi/root/**'
+      - '../../luci-app-homeproxy-clashapi/Makefile'
       - '.github/**'
       - '!.github/ISSUE_TEMPLATE/**'
 
