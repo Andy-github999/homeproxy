@@ -6,10 +6,10 @@ on:
       - 'master'
       - 'dev'
     paths:
-      - 'htdocs/**'
-      - 'po/**'
-      - 'root/**'
-      - 'Makefile'
+      - '../../luci-app-homeproxy/htdocs/**'
+      - '../../luci-app-homeproxy/po/**'
+      - '../../luci-app-homeproxy/root/**'
+      - '../../luci-app-homeproxy/Makefile'
       - '.github/**'
       - '!.github/ISSUE_TEMPLATE/**'
 
@@ -22,9 +22,9 @@ on:
       - synchronize
       - reopened
     paths:
-      - 'htdocs/**'
-      - 'root/**'
-      - 'Makefile'
+      - '../../luci-app-homeproxy/htdocs/**'
+      - '../../luci-app-homeproxy/root/**'
+      - '../../luci-app-homeproxy/Makefile'
       - '.github/**'
       - '!.github/ISSUE_TEMPLATE/**'
 
