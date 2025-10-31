@@ -13,7 +13,7 @@ export PKG_SOURCE_DATE_EPOCH="$(date "+%s")"
 export SOURCE_DATE_EPOCH="$PKG_SOURCE_DATE_EPOCH"
 
 BASE_DIR="$(cd "$(dirname $0)"; pwd)"
-PKG_DIR="$BASE_DIR/.."
+PKG_DIR="$BASE_DIR/../luci-app-homeproxy-clashapi"
 
 function get_mk_value() {
 	awk -F "$1:=" '{print $2}' "$PKG_DIR/Makefile" | xargs
