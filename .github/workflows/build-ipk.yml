@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - 'master'
-      - 'dev'
     paths:
       - '../../luci-app-homeproxy-clashapi/htdocs/**'
       - '../../luci-app-homeproxy-clashapi/po/**'
@@ -16,7 +15,6 @@ on:
   pull_request:
     branches:
       - 'master'
-      - 'dev'
     types:
       - opened
       - synchronize
@@ -31,6 +29,8 @@ on:
   release:
     types:
       - published
+
+  workflow_dispatch:
 
 jobs:
   build:
