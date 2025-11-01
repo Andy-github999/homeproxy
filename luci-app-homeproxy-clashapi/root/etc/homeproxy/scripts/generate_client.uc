@@ -106,6 +106,14 @@ if (routing_mode !== 'custom') {
 const proxy_mode = uci.get(uciconfig, ucimain, 'proxy_mode') || 'redirect_tproxy',
       default_interface = uci.get(uciconfig, ucicontrol, 'bind_interface');
 
+const enable_clash_api = uci.get(uciconfig, uciexp, 'enable_clash_api'),
+	  external_ui = uci.get(uciconfig, uciexp, 'external_ui'),
+	  external_ui_download_url = uci.get(uciconfig, uciexp, 'external_ui_download_url'),
+	  external_ui_download_detour = uci.get(uciconfig, uciexp, 'external_ui_download_detour'),
+	  secret = uci.get(uciconfig, uciexp, 'secret'),
+	  default_mode = uci.get(uciconfig, uciexp, 'default_mode'),
+      external_controller = uci.get(uciconfig, uciexp, 'external_controller');
+
 const mixed_port = uci.get(uciconfig, uciinfra, 'mixed_port') || '5330';
 
 let self_mark, redirect_port, tproxy_port, tun_name,
@@ -390,7 +398,7 @@ function get_resolver(cfg) {
 	case 'system-dns':
 		return cfg;
 	default:
-		return 'cfg-' + cfg + '-dns';
+		return cfg;
 	}
 }
 
@@ -400,7 +408,7 @@ function get_ruleset(cfg) {
 
 	let rules = [];
 	for (let i in cfg)
-		push(rules, isEmpty(i) ? null : 'cfg-' + i + '-rule');
+		push(rules, isEmpty(i) ? null : i);
 	return rules;
 }
 /* Config helper end */
@@ -523,12 +531,12 @@ if (!isEmpty(main_node)) {
 		if (cfg.enabled !== '1')
 			return;
 
-		let outbound = get_outbound(cfg.outbound);
+		let outbound = cfg.outbound;
 		if (outbound === 'direct-out' && isEmpty(self_mark))
 			outbound = null;
 
 		push(config.dns.servers, {
-			tag: 'cfg-' + cfg['.name'] + '-dns',
+			tag: cfg.label,
 			type: cfg.type,
 			server: cfg.server,
 			server_port: strToInt(cfg.server_port),
@@ -575,7 +583,8 @@ if (!isEmpty(main_node)) {
 			rule_set: get_ruleset(cfg.rule_set),
 			rule_set_ip_cidr_match_source: strToBool(cfg.rule_set_ip_cidr_match_source),
 			invert: strToBool(cfg.invert),
-			outbound: get_outbound(cfg.outbound),
+			clash_mode: cfg.clash_mode,
+			outbound: cfg.outbound,
 			action: cfg.action,
 			server: get_resolver(cfg.server),
 			strategy: cfg.domain_strategy,
@@ -742,9 +751,7 @@ if (!isEmpty(main_node)) {
 	let urltest_nodes = [],
 	    routing_nodes = [];
 
-	uci.foreach(uciconfig, uciroutingnode, (cfg) => {
-		if (cfg.enabled !== '1')
-			return;
+	uci.foreach(uciconfig, 'node', (cfg) => {
 
 		if (cfg.node === 'urltest') {
 			push(config.outbounds, {
@@ -759,20 +766,19 @@ if (!isEmpty(main_node)) {
 			});
 			urltest_nodes = [...urltest_nodes, ...filter(cfg.urltest_nodes, (l) => !~index(urltest_nodes, l))];
 		} else {
-			const outbound = uci.get_all(uciconfig, cfg.node) || {};
 			if (outbound.type === 'wireguard') {
-				push(config.endpoints, generate_endpoint(outbound));
+				push(config.endpoints, generate_endpoint(cfg));
 				config.endpoints[length(config.endpoints)-1].bind_interface = cfg.bind_interface;
-				config.endpoints[length(config.endpoints)-1].detour = get_outbound(cfg.outbound);
+				config.endpoints[length(config.endpoints)-1].detour = cfg.outbound;
 				if (cfg.domain_resolver)
 					config.endpoints[length(config.endpoints)-1].domain_resolver = {
 						server: get_resolver(cfg.domain_resolver),
 						strategy: cfg.domain_strategy
 					};
 			} else {
-				push(config.outbounds, generate_outbound(outbound));
+				push(config.outbounds, generate_outbound(cfg));
 				config.outbounds[length(config.outbounds)-1].bind_interface = cfg.bind_interface;
-				config.outbounds[length(config.outbounds)-1].detour = get_outbound(cfg.outbound);
+				config.outbounds[length(config.outbounds)-1].detour = cfg.outbound;
 				if (cfg.domain_resolver)
 					config.outbounds[length(config.outbounds)-1].domain_resolver = {
 						server: get_resolver(cfg.domain_resolver),
@@ -935,7 +941,8 @@ if (!isEmpty(main_node)) {
 			rule_set_ip_cidr_accept_empty: strToBool(cfg.rule_set_ip_cidr_accept_empty),
 			invert: strToBool(cfg.invert),
 			action: cfg.action,
-			outbound: get_outbound(cfg.outbound),
+			clash_mode: cfg.clash_mode,
+			outbound: cfg.outbound,
 			override_address: cfg.override_address,
 			override_port: strToInt(cfg.override_port),
 			udp_disable_domain_unmapping: strToBool(cfg.udp_disable_domain_unmapping),
@@ -947,7 +954,7 @@ if (!isEmpty(main_node)) {
 		});
 	});
 
-	config.route.final = get_outbound(default_outbound);
+	config.route.final = default_outbound;
 
 	/* Rule set */
 	uci.foreach(uciconfig, uciruleset, (cfg) => {
@@ -955,12 +962,12 @@ if (!isEmpty(main_node)) {
 			return null;
 
 		push(config.route.rule_set, {
-			type: cfg.type,
+			type: cfg.label,
 			tag: 'cfg-' + cfg['.name'] + '-rule',
 			format: cfg.format,
 			path: cfg.path,
 			url: cfg.url,
-			download_detour: get_outbound(cfg.outbound),
+			download_detour: cfg.outbound,
 			update_interval: cfg.update_interval
 		});
 	});
