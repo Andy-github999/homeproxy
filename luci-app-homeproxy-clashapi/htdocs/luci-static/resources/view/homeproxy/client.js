@@ -1395,7 +1395,7 @@ return view.extend({
 
 		/* clash_api settings start */
 		s.tab('clash_api', _('Clash API'));
-		o = s.taboption('clash_api', form.NamedSection, 'experimental', 'homeproxy');
+		o = s.taboption('clash_api', form.SectionValue, '_experimental', form.NamedSection, 'experimental', 'homeproxy');
 		o.depends('routing_mode', 'custom');
 
 		ss = o.subsection;

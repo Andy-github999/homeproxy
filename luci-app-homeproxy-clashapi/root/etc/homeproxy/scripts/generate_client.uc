@@ -29,6 +29,7 @@ uci.load(uciconfig);
 
 const uciinfra = 'infra',
       ucimain = 'config',
+      uciexp = 'experimental',
       ucicontrol = 'control';
 
 const ucidnssetting = 'dns',
