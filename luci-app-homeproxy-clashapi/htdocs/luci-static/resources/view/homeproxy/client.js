@@ -1401,7 +1401,7 @@ return view.extend({
 		ss = o.subsection;
 		so = ss.option(form.Flag, 'enable_clash_api', _('Enable Clash API'));
 		so.default = so.disabled;
-		so.rmempty = false;
+
 
 		so = ss.option(form.Value, 'external_controller', _('External Controller'),
 			_('RESTful web API listening address'));
@@ -1435,7 +1435,7 @@ return view.extend({
 			});
 
 			return this.super('load', section_id);
-		};
+		}
 		so.depends('enable_clash_api', '1');
 
 		so = ss.option(form.ListValue, 'default_mode', _('Default mode'),
